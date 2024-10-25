@@ -32,10 +32,14 @@ def load_image(filename):
   img = (img - 127.5) / 127.5
   return img
 
+# get number of images
+def num_images():
+  images_files = glob(images_path)
+  return len(images_files)  
+
 # create dataset
 def gen():
   images_files = glob(images_path)
-  print(f"images: {len(images_files)}")
   ds = tf.data.Dataset.from_tensor_slices(images_files)
   ds = ds.shuffle(buffer_size=1000).map(load_image, num_parallel_calls=tf.data.experimental.AUTOTUNE)
   ds = ds.batch(batch_size).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)

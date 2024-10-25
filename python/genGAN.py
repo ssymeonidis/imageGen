@@ -1,59 +1,30 @@
-import os
-import time
-import numpy as np
-import cv2
-from glob import glob
-from matplotlib import pyplot
-from sklearn.utils import shuffle
-import tensorflow as tf
-from tensorflow.keras import layers as L
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
-import dataset
-import modelGeneratorDense as modelGenerator
-import modelDiscriminatorDense as modelDiscriminator
-import modelGAN
-import plotSave
+#################################################################
+# imageGen Tensorflow Project 
+# Copyright (C) 2024 Simeon Symeonidis
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#################################################################
 
-IMG_H = 64
-IMG_W = 64
-IMG_C = 3
+
+# import libraries
+import imgDataset
+import modelGAN
 
 if __name__ == '__main__':
+  img_size   = (64, 64, 3)
   latent_dim = 64
   num_epochs = 1000
-  n_samples  = 100
-
-  g_model = modelGenerator.gen((IMG_H, IMG_W, IMG_C), latent_dim)
-  d_model = modelDiscriminator.gen((IMG_H, IMG_W, IMG_C))
-
-  g_model.summary()
-  d_model.summary()
-
-  d_optimizer = tf.keras.optimizers.Adam(learning_rate=0.002, beta_1=0.9)
-  g_optimizer = tf.keras.optimizers.Adam(learning_rate=0.002, beta_1=0.9)
-
-  images_dataset = dataset.gen()
-  seed = np.random.normal(size=(n_samples, 1, latent_dim))
-
-  for epoch in range(num_epochs):
-    start = time.time()
-    d_loss = 0.0
-    g_loss = 0.0
-    for image_batch in images_dataset:
-      d_batch_loss, g_batch_loss = modelGAN.train_step(image_batch, latent_dim, g_model, d_model, g_optimizer, d_optimizer)
-      d_loss += d_batch_loss
-      g_loss += g_batch_loss
-
-    d_loss = d_loss/len(images_dataset)
-    g_loss = g_loss/len(images_dataset)
-
-    g_model.save("../models/g_model.keras")
-    d_model.save("../models/d_model.keras")
-
-    examples = g_model.predict(seed, verbose=0)
-    plotSave.saveNxN(examples, epoch, np.sqrt(n_samples))
-
-    time_taken = time.time() - start
-    print(f"[{epoch+1:1.0f}/{num_epochs}] {time_taken:2.2f}s - d_loss: {d_loss:1.4f} - g_loss: {g_loss:1.4f}")
-
+  dataset  = imgDataset.gen()
+  num_imgs = imgDataset.num_images()
+  print(f"images: {num_imgs}")
+  model    = modelGAN.GAN(img_size, latent_dim)
+  model.summary()
+  model.train(dataset, num_epochs, num_imgs)
