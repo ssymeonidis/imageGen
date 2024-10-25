@@ -1,0 +1,4 @@
+*.npy
+*.keras
+*.log
+*.tflite
