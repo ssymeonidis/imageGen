@@ -1,4 +1,4 @@
-# AI/ML Image Noise Reduction via Tensorflow
+# AI/ML Image Generation via Tensorflow
 
 This repository implements a Generative Adversarial Network (GAN) for creating
 synthetic images based on training data.  This project is based off the YouTube
